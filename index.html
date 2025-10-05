@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIARIC</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+  body {
+    background: radial-gradient(circle at top, #0a0a0a, #000);
+    color: #e0e0e0;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; flex-direction: column;
+  }
+  h1 {
+    font-size: 2.2em;
+    letter-spacing: 8px;
+    color: #00aaff;
+    margin-bottom: 20px;
+  }
+  .login, .muro { background: #111; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; }
+  input, button, textarea {
+    width: 100%; padding: 10px; margin: 10px 0;
+    border: none; border-radius: 8px;
+  }
+  input, textarea { background: #222; color: #fff; }
+  button {
+    background: #00aaff; color: #fff; font-weight: bold; cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover { background: #0088cc; }
+  .post { background: #1a1a1a; padding: 10px; border-radius: 10px; margin-top: 10px; }
+  .logout { text-align: right; }
+</style>
+</head>
+<body>
+  <h1>UNIARIC</h1>
+
+  <div class="login" id="loginBox">
+    <input type="text" id="username" placeholder="Nombre de usuario">
+    <button onclick="login()">Entrar</button>
+  </div>
+
+  <div class="muro" id="muroBox" style="display:none;">
+    <div class="logout"><button onclick="logout()">Cerrar sesión</button></div>
+    <h2>Bienvenido, <span id="userDisplay"></span></h2>
+    <textarea id="mensaje" rows="3" placeholder="¿Qué estás pensando?"></textarea>
+    <button onclick="publicar()">Publicar</button>
+    <div id="publicaciones"></div>
+  </div>
+
+<script>
+function login() {
+  const user = document.getElementById("username").value.trim();
+  if (user === "") return alert("Ingresa un nombre de usuario");
+  localStorage.setItem("user", user);
+  mostrarMuro();
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  document.getElementById("muroBox").style.display = "none";
+  document.getElementById("loginBox").style.display = "block";
+}
+
+function publicar() {
+  const mensaje = document.getElementById("mensaje").value.trim();
+  if (mensaje === "") return;
+  const publicaciones = JSON.parse(localStorage.getItem("posts") || "[]");
+  publicaciones.unshift({ user: localStorage.getItem("user"), mensaje });
+  localStorage.setItem("posts", JSON.stringify(publicaciones));
+  document.getElementById("mensaje").value = "";
+  mostrarPublicaciones();
+}
+
+function mostrarMuro() {
+  const user = localStorage.getItem("user");
+  if (!user) return;
+  document.getElementById("userDisplay").textContent = user;
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("muroBox").style.display = "block";
+  mostrarPublicaciones();
+}
+
+function mostrarPublicaciones() {
+  const contenedor = document.getElementById("publicaciones");
+  contenedor.innerHTML = "";
+  const publicaciones = JSON.parse(localStorage.getItem("posts") || "[]");
+  publicaciones.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `<strong>${p.user}</strong><br>${p.mensaje}`;
+    contenedor.appendChild(div);
+  });
+}
+
+window.onload = mostrarMuro;
+</script>
+</body>
+</html>
